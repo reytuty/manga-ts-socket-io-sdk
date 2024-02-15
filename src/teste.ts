@@ -1,40 +1,23 @@
-import { io, Socket } from "socket.io-client";
+import { MangaClient, MangaConfig } from ".";
 
-export class SocketClient {
-  private socket: Socket;
+let config: MangaConfig = {
+  ip: "localhost",
+  port: "8000",
+  appName: "test",
+  connectTimeout: 10000,
+  auth: {
+    username: "test",
+    password: "pass",
+  },
+};
 
-  constructor(private serverUrl: string) {
-    this.socket = io(serverUrl);
+let mangaClient: MangaClient = new MangaClient(config);
 
-    this.setupListeners();
-  }
-
-  private setupListeners(): void {
-    this.socket.on("connect", () => {
-      console.log("Connected to server");
-    });
-
-    this.socket.on("message", (data: string) => {
-      console.log("Received message from server:", data);
-    });
-
-    this.socket.on("disconnect", () => {
-      console.log("Disconnected from server");
-    });
-  }
-
-  public sendMessage(message: string): void {
-    this.socket.emit("message", message);
-  }
-
-  public disconnect(): void {
-    this.socket.disconnect();
-  }
-}
-
-// Usage example
-const serverUrl = "http://localhost:8000"; // Replace with your server URL
-const socketClient = new SocketClient(serverUrl);
-
-// Send a message to the server
-socketClient.sendMessage("Hello, server!");
+mangaClient.connect().then((r) => {
+  mangaClient.addListenerOnMessage(
+    "dev.invest.token.order.buyed",
+    (data: any) => {
+      console.log("************ Alguém comprou algo", data);
+    }
+  );
+});

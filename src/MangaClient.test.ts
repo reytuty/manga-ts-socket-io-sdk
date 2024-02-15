@@ -43,15 +43,31 @@ describe("MangaClient", () => {
 
   beforeAll(async () => {
     mangaClient = new MangaClient(config);
+
     await mangaClient.connect();
+    mangaClient.addListenerOnMessage(
+      "dev.invest.token.order.buyed",
+      (data: any) => {
+        console.log("************ Alguém comprou algo", data);
+      }
+    );
   });
 
-  it("should be connected", () => {
-    sleep(100);
+  it("should be connected", async () => {
+    await sleep(100);
     expect(mangaClient.isConnected).toBe(true);
+    mangaClient.message(
+      "dev.invest.token.order.buyed",
+      {
+        value: 10.0,
+      },
+      (data: any) => {
+        console.log("! Mensagem enviada", data);
+      }
+    );
   });
-  it("should stay connected", () => {
-    sleep(2000);
+  it("should stay connected", async () => {
+    await sleep(2000);
     expect(mangaClient.isConnected).toBe(true);
   });
   it("should to disconnect", () => {
@@ -65,13 +81,13 @@ describe("MangaClient", () => {
     expect(mangaClient.isConnected).toBe(true);
   });
   it("should to add a listener", async () => {
-    mangaClient.addListenerOnChange("test", (data: any) => {
+    mangaClient.addListenerOnChange("a.b.c", (data: any) => {
       console.log("teste recebido", data);
       testData.receivedData["test"] = data;
     });
     sleep(200);
     const data: string = `test ${new Date().toISOString()}`;
-    mangaClient.set("test", data);
+    mangaClient.set("a.b.c", data);
     await sleep(200);
     expect(testData.receivedData?.test).toBe(data);
   });

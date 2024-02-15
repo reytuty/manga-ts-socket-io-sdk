@@ -90,7 +90,7 @@ export class MangaClient {
 
   private addListener(
     path: string,
-    mode: "onChange" | "onSet" | "onChangeLength",
+    mode: "onChange" | "onSet" | "onChangeLength" | "onMessage",
     p_callback: (data: PathValue) => void
   ): void {
     const method = `${path}__${mode}`;
@@ -110,10 +110,11 @@ export class MangaClient {
         method,
       },
     };
-
+    let listenerName: string =
+      mode === "onMessage" ? "addMessageListener" : "addListener";
     this.socket.on(method, p_callback);
     this.pathsCache.set(method, { count: 0 });
-    this.socket.emit("addListener", obj);
+    this.socket.emit(listenerName, obj);
   }
 
   public addListenerOnChange(
@@ -124,14 +125,21 @@ export class MangaClient {
   }
 
   public addListenerOnSet(path: string, callback: (data: any) => void): void {
-    this.addListener(path, "onSet", (data) => callback(data?.value));
+    this.addListener(path, "onSet", (data) => callback(data));
+  }
+
+  public addListenerOnMessage(
+    path: string,
+    callback: (data: any) => void
+  ): void {
+    this.addListener(path, "onMessage", (data) => callback(data));
   }
 
   public addListenerOnChangeLenth(
     path: string,
     callback: (data: any) => void
   ): void {
-    this.addListener(path, "onChangeLength", (data) => callback(data?.value));
+    this.addListener(path, "onChangeLength", (data) => callback(data));
   }
 
   public removeAllListenerByPath(path: string): void {
