@@ -39,16 +39,55 @@ function sleep(time) {
 describe("MangaClient", () => {
     let config = {
         ip: "localhost",
-        port: "81",
+        port: "8000",
         appName: "test",
+        connectTimeout: 10000,
+        auth: {
+            username: "test",
+            password: "pass",
+        },
     };
     let mangaClient;
     beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
         mangaClient = new index_1.MangaClient(config);
         yield mangaClient.connect();
+        mangaClient.addListenerOnMessage("dev.invest.token.order.buyed", (data) => {
+            console.log("************ Alguém comprou algo", data);
+        });
     }));
-    it("should be connected", () => {
-        sleep(1000);
+    it("should be connected", () => __awaiter(void 0, void 0, void 0, function* () {
+        yield sleep(100);
         expect(mangaClient.isConnected).toBe(true);
+        mangaClient.message("dev.invest.token.order.buyed", {
+            value: 10.0,
+        }, (data) => {
+            console.log("! Mensagem enviada", data);
+        });
+    }));
+    it("should stay connected", () => __awaiter(void 0, void 0, void 0, function* () {
+        yield sleep(2000);
+        expect(mangaClient.isConnected).toBe(true);
+    }));
+    it("should to disconnect", () => {
+        mangaClient.disconnect();
+        sleep(100);
+        expect(mangaClient.isConnected).toBe(false);
     });
+    it("should to connect again", () => __awaiter(void 0, void 0, void 0, function* () {
+        yield mangaClient.connect();
+        sleep(100);
+        expect(mangaClient.isConnected).toBe(true);
+    }));
+    it("should to add a listener", () => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        mangaClient.addListenerOnChange("a.b.c", (data) => {
+            console.log("teste recebido", data);
+            testData.receivedData["test"] = data;
+        });
+        sleep(200);
+        const data = `test ${new Date().toISOString()}`;
+        mangaClient.set("a.b.c", data);
+        yield sleep(200);
+        expect((_a = testData.receivedData) === null || _a === void 0 ? void 0 : _a.test).toBe(data);
+    }));
 });

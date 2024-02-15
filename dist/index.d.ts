@@ -31,10 +31,11 @@ export declare class MangaClient {
     delete(path: string, callback?: Function): boolean;
     get paths(): string[];
     private addListener;
-    addListenerOnChange(path: string, callback: (data: any) => {}): void;
-    addListenerOnSet(path: string, callback: (data: any) => {}): void;
-    addListenerOnChangeLenth(path: string, callback: (data: any) => {}): void;
+    addListenerOnChange(path: string, callback: (data: any) => void): void;
+    addListenerOnSet(path: string, callback: (data: any) => void): void;
+    addListenerOnMessage(path: string, callback: (data: any) => void): void;
+    addListenerOnChangeLenth(path: string, callback: (data: any) => void): void;
     removeAllListenerByPath(path: string): void;
-    connect(): Promise<void>;
+    connect(): Promise<boolean>;
     disconnect(): void;
 }

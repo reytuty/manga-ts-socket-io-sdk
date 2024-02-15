@@ -17,8 +17,7 @@ class MangaClient {
         this.pathsCache = new Map();
         this.config = p_config;
         this.appName = p_config.appName;
-        this.socket = (0, socket_io_client_1.io)(`${this.config.ip}:${this.config.port}`);
-        const me = this;
+        this.socket = (0, socket_io_client_1.io)(`${normalizeUrl(this.config.ip)}:${this.config.port}`);
         this.setupSocketListeners();
     }
     emit(method, ob, callback) {
@@ -76,18 +75,22 @@ class MangaClient {
                 method,
             },
         };
+        let listenerName = mode === "onMessage" ? "addMessageListener" : "addListener";
         this.socket.on(method, p_callback);
         this.pathsCache.set(method, { count: 0 });
-        this.socket.emit("addListener", obj);
+        this.socket.emit(listenerName, obj);
     }
     addListenerOnChange(path, callback) {
-        this.addListener(path, "onChange", (data) => callback(data === null || data === void 0 ? void 0 : data.value));
+        this.addListener(path, "onChange", (data) => callback(data));
     }
     addListenerOnSet(path, callback) {
-        this.addListener(path, "onSet", (data) => callback(data === null || data === void 0 ? void 0 : data.value));
+        this.addListener(path, "onSet", (data) => callback(data));
+    }
+    addListenerOnMessage(path, callback) {
+        this.addListener(path, "onMessage", (data) => callback(data));
     }
     addListenerOnChangeLenth(path, callback) {
-        this.addListener(path, "onChangeLength", (data) => callback(data === null || data === void 0 ? void 0 : data.value));
+        this.addListener(path, "onChangeLength", (data) => callback(data));
     }
     removeAllListenerByPath(path) {
         this.pathsCache.delete(path);
@@ -96,13 +99,14 @@ class MangaClient {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             if (this.isConnected)
-                return;
+                return true;
             this.socket.connect();
             let timeout = (_b = (_a = this.config) === null || _a === void 0 ? void 0 : _a.connectTimeout) !== null && _b !== void 0 ? _b : 1000;
             while (!this.isConnected && timeout > 0) {
                 yield new Promise((resolve) => setTimeout(resolve, 100));
                 timeout -= 100;
             }
+            return timeout > 0;
         });
     }
     disconnect() {
@@ -113,3 +117,12 @@ class MangaClient {
     }
 }
 exports.MangaClient = MangaClient;
+function normalizeUrl(ip) {
+    if (ip.startsWith("http://") || ip.startsWith("https://")) {
+        return ip;
+    }
+    if (!ip) {
+        ip = "localhost";
+    }
+    return `http://${ip}`;
+}
