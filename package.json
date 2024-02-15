@@ -1,6 +1,6 @@
 {
   "name": "manga-ts-socket-io-sdk",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Client access  manga-js-server by socket.io",
   "main": "dist/index.js",
   "module": "dist/index.js",
