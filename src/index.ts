@@ -30,7 +30,9 @@ export class MangaClient {
   constructor(p_config: MangaConfig) {
     this.config = p_config;
     this.appName = p_config.appName;
-    this.socket = io(`${normalizeUrl(this.config.ip)}:${this.config.port}`);
+    this.socket = io(`${normalizeUrl(this.config.ip)}:${this.config.port}`, {
+      auth: this.config.auth || {},
+    });
 
     this.setupSocketListeners();
   }

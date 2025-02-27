@@ -1,23 +1,21 @@
 import { MangaClient, MangaConfig } from ".";
 
 let config: MangaConfig = {
-  ip: "localhost",
-  port: "8000",
-  appName: "test",
+  ip: "http://18.215.49.140",
+  port: "8001",
+  appName: "test lib",
   connectTimeout: 10000,
   auth: {
-    username: "test",
-    password: "pass",
+    username: "test2",
+    password: "pass2",
   },
 };
 
 let mangaClient: MangaClient = new MangaClient(config);
 
 mangaClient.connect().then((r) => {
-  mangaClient.addListenerOnMessage(
-    "dev.invest.token.order.buyed",
-    (data: any) => {
-      console.log("************ Alguém comprou algo", data);
-    }
-  );
+  console.log("Connected", r);
+  mangaClient.addListenerOnMessage("stress.test", (data: any) => {
+    console.log("************ stress.test", data);
+  });
 });
